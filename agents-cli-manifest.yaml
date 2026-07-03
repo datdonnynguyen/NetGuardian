@@ -1,0 +1,6 @@
+name: netguardian
+agent_directory: netguardian
+prototype: true
+deployment_target: none
+description: Enterprise Security Operating System demo with Enterprise Digital Twin, Incident Engine, ADK-style multi-agent reasoning, human approval, and MCP-style controlled execution.
+

@@ -1,0 +1,71 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      NETGUARDIAN_DB_PATH: /app/data/netguardian.db
+      NETGUARDIAN_AI_MODE: ${NETGUARDIAN_AI_MODE:-auto}
+      NETGUARDIAN_AI_PROVIDER: ${NETGUARDIAN_AI_PROVIDER:-ollama}
+      NETGUARDIAN_OLLAMA_URL: ${NETGUARDIAN_OLLAMA_URL:-http://host.docker.internal:11434}
+      NETGUARDIAN_OLLAMA_MODEL: ${NETGUARDIAN_OLLAMA_MODEL:-qwen2.5:7b}
+      NETGUARDIAN_OLLAMA_TIMEOUT_SECONDS: ${NETGUARDIAN_OLLAMA_TIMEOUT_SECONDS:-120}
+      NETGUARDIAN_GEMINI_MODEL: ${NETGUARDIAN_GEMINI_MODEL:-gemini-2.0-flash}
+      NETGUARDIAN_GEMINI_TIMEOUT_SECONDS: ${NETGUARDIAN_GEMINI_TIMEOUT_SECONDS:-30}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      - netguardian-data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    environment:
+      NETGUARDIAN_API_URL: http://api:8000
+      NETGUARDIAN_DASHBOARD_AGENT_TIMEOUT_SECONDS: ${NETGUARDIAN_DASHBOARD_AGENT_TIMEOUT_SECONDS:-120}
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
+
+  employee-01:
+    image: alpine:latest
+    container_name: employee-01
+    hostname: Employee-01
+    command: ["sh", "-c", "apk add --no-cache curl; tail -f /dev/null"]
+    restart: always
+
+  file-01:
+    image: alpine:latest
+    container_name: file-01
+    hostname: file-01
+    command: ["sh", "-c", "tail -f /dev/null"]
+    restart: always
+
+  c2-server:
+    image: alpine:latest
+    container_name: c2-server
+    hostname: c2-server
+    command: ["sh", "-c", "tail -f /dev/null"]
+    restart: always
+
+  endpoint-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      NETGUARDIAN_API_URL: http://api:8000
+    depends_on:
+      - api
+    command: ["python", "endpoint_simulator/simulate_alice_malware.py"]
+    profiles:
+      - tools
+    volumes:
+      - ./endpoint_simulator:/app/endpoint_simulator:ro
+
+volumes:
+  netguardian-data:

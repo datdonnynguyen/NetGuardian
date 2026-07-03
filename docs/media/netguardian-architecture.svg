@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">NetGuardian Architecture</title>
+  <desc id="desc">Endpoint telemetry flows through an event dispatcher into the Enterprise Digital Twin, Incident Engine, ADK-style agents, human approval, MCP-style execution, and verification.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .band { fill: #e0f2fe; stroke: #7dd3fc; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 10; }
+      .safe { fill: #ecfdf5; stroke: #16a34a; stroke-width: 2; rx: 10; }
+      .guard { fill: #fff7ed; stroke: #f97316; stroke-width: 2; rx: 10; }
+      .title { font: 700 34px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #475569; }
+      .label { font: 700 18px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 400 14px Arial, sans-serif; fill: #475569; }
+      .tiny { font: 700 12px Arial, sans-serif; fill: #2563eb; letter-spacing: 0.06em; }
+      .line { stroke: #2563eb; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="720"/>
+  <text class="title" x="64" y="64">NetGuardian Architecture</text>
+  <text class="subtitle" x="64" y="94">Trusted enterprise state first, AI-assisted response second, approval-gated execution always.</text>
+
+  <rect class="band" x="64" y="132" width="1152" height="120" rx="14"/>
+  <text class="tiny" x="92" y="164">ENTERPRISE SIGNALS</text>
+  <rect class="box" x="92" y="180" width="210" height="52"/>
+  <text class="label" x="118" y="212">Endpoint Simulator</text>
+  <rect class="box" x="360" y="180" width="210" height="52"/>
+  <text class="label" x="392" y="212">Telemetry Event</text>
+  <rect class="box" x="628" y="180" width="210" height="52"/>
+  <text class="label" x="654" y="212">Event Dispatcher</text>
+  <path class="line" d="M302 206 H352"/>
+  <path class="line" d="M570 206 H620"/>
+
+  <rect class="band" x="64" y="292" width="1152" height="150" rx="14"/>
+  <text class="tiny" x="92" y="324">TRUSTED CONTROL PLANE</text>
+  <rect class="safe" x="92" y="344" width="260" height="72"/>
+  <text class="label" x="122" y="374">Enterprise Digital Twin</text>
+  <text class="small" x="122" y="398">Users, devices, assets, telemetry</text>
+  <rect class="box" x="422" y="344" width="220" height="72"/>
+  <text class="label" x="456" y="374">Business Context</text>
+  <text class="small" x="456" y="398">Ownership and access graph</text>
+  <rect class="box" x="712" y="344" width="220" height="72"/>
+  <text class="label" x="748" y="374">Threat Intel</text>
+  <text class="small" x="748" y="398">Known C2 and indicators</text>
+  <rect class="guard" x="1002" y="344" width="186" height="72"/>
+  <text class="label" x="1030" y="374">Incident Engine</text>
+  <text class="small" x="1030" y="398">Deterministic risk scoring</text>
+  <path class="line" d="M733 232 V300 H222 V336"/>
+  <path class="line" d="M352 380 H414"/>
+  <path class="line" d="M642 380 H704"/>
+  <path class="line" d="M932 380 H994"/>
+
+  <rect class="band" x="64" y="482" width="1152" height="144" rx="14"/>
+  <text class="tiny" x="92" y="514">AI-ASSISTED RESPONSE WITH SAFETY BOUNDARIES</text>
+  <rect class="box" x="92" y="536" width="200" height="62"/>
+  <text class="label" x="126" y="562">Investigation</text>
+  <text class="small" x="126" y="584">Explain evidence</text>
+  <rect class="box" x="338" y="536" width="200" height="62"/>
+  <text class="label" x="378" y="562">Response</text>
+  <text class="small" x="378" y="584">Recommend action</text>
+  <rect class="guard" x="584" y="536" width="200" height="62"/>
+  <text class="label" x="622" y="562">Human Approval</text>
+  <text class="small" x="622" y="584">Required for impact</text>
+  <rect class="guard" x="830" y="536" width="200" height="62"/>
+  <text class="label" x="866" y="562">MCP Boundary</text>
+  <text class="small" x="866" y="584">Deny or execute</text>
+  <rect class="safe" x="1076" y="536" width="112" height="62"/>
+  <text class="label" x="1093" y="562">Verify</text>
+  <text class="small" x="1093" y="584">Containment</text>
+  <path class="line" d="M1095 416 V464 H192 V528"/>
+  <path class="line" d="M292 567 H330"/>
+  <path class="line" d="M538 567 H576"/>
+  <path class="line" d="M784 567 H822"/>
+  <path class="line" d="M1030 567 H1068"/>
+
+  <text class="small" x="64" y="672">Safety invariant: AI explains and recommends; the Incident Engine creates cases; MCP-style tools execute only after approval.</text>
+</svg>

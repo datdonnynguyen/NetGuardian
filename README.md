@@ -172,6 +172,40 @@ Judges can inspect this module to see how easily NetGuardian can be deployed as 
 
 ---
 
+## Flexible AI Backend Configuration (Ollama vs. Google Gemini)
+
+NetGuardian features an AI-agnostic architecture. Security teams can choose between offline Local AI for strict data privacy, or Cloud AI for maximum reasoning capabilities:
+
+### Mode 1: Local AI (Default - Offline Security)
+All incident telemetry remains strictly inside your local network. No external API keys are required.
+1. Run Ollama and pull your preferred model (e.g. Google's `gemma2` or `qwen2.5:7b`):
+   ```bash
+   ollama pull qwen2.5:7b
+   ```
+2. Export variables and start backend:
+   ```bash
+   export NETGUARDIAN_AI_MODE=live
+   export NETGUARDIAN_AI_PROVIDER=ollama
+   export NETGUARDIAN_OLLAMA_MODEL=qwen2.5:7b
+   .venv/bin/uvicorn netguardian.api:app --host 127.0.0.1 --port 8000
+   ```
+
+### Mode 2: Google Gemini (Cloud AI - Advanced Reasoning)
+Utilizes Google's state-of-the-art models for deeper analysis and incident explanation.
+1. Obtain an API Key from Google AI Studio.
+2. Export variables and start backend:
+   ```bash
+   export NETGUARDIAN_AI_MODE=live
+   export NETGUARDIAN_AI_PROVIDER=gemini
+   export GOOGLE_API_KEY="your-google-api-key-here"
+   .venv/bin/uvicorn netguardian.api:app --host 127.0.0.1 --port 8000
+   ```
+
+### Mode 3: Deterministic Fallback (Offline Sandbox Testing)
+If no model is configured and no API keys are exported, NetGuardian automatically falls back to predefined database templates. This guarantees that your unit tests and basic workflows remain robust, offline-capable, and immune to API rate limits or network issues.
+
+---
+
 ## Local Verification Status
 
 - **Unit Tests (`python -m unittest discover -s tests`):** 9 tests pass.

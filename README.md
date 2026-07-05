@@ -103,7 +103,7 @@ To stop the servers at any time, run: `kill $(lsof -t -i:8000 -i:8501)`
 
 ---
 
-### 3. Automated Evaluation & Tests (Chống Báo Động Giả & Kiểm thử)
+### 3. Automated Evaluation & Testing
 To grade the project's safety boundaries and compliance:
 
 #### A. Run Unit Tests (9 Tests)

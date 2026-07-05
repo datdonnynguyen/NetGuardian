@@ -170,10 +170,20 @@ st.set_page_config(page_title="NetGuardian SOC", layout="wide")
 st.markdown(
     """
     <style>
-      .block-container {padding-top: 1.5rem; padding-bottom: 2rem;}
-      .ng-header {border-bottom: 1px solid #263241; padding-bottom: 0.8rem; margin-bottom: 1rem;}
+      .block-container {padding-top: 3.5rem !important; padding-bottom: 2rem;}
+      .ng-header {border-bottom: 1px solid #263241; padding-bottom: 0.8rem; margin-bottom: 1rem; padding-top: 0.5rem;}
       .ng-eyebrow {font-size: 0.78rem; text-transform: uppercase; color: #6b7280; letter-spacing: 0.08em;}
-      .ng-title {font-size: 2rem; font-weight: 750; line-height: 1.1;}
+      .ng-title {
+        font-size: 2.4rem;
+        font-weight: 850;
+        background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+      }
       .ng-subtitle {color: #6b7280; margin-top: 0.25rem;}
       .ng-card {border: 1px solid #263241; border-radius: 8px; padding: 0.9rem; background: #0f1722; color: #f8fafc; min-height: 108px;}
       .ng-card-label {font-size: 0.78rem; text-transform: uppercase; color: #cbd5e1;}
@@ -271,9 +281,14 @@ st.markdown(
 st.markdown(
     """
     <div class="ng-header">
-      <div class="ng-eyebrow">NetGuardian SOC Console</div>
-      <div class="ng-title">Incident Response Workspace</div>
-      <div class="ng-subtitle">Enterprise Digital Twin, deterministic incident creation, AI-assisted response, human approval, and MCP-controlled execution.</div>
+      <div class="logo-container" style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.3rem; flex-wrap: wrap;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6)); margin-top: 0.2rem;">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <div class="ng-title">NetGuardian</div>
+        <span style="background: #1e293b; color: #38bdf8; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid #38bdf8; margin-top: 0.4rem; letter-spacing: 0.05em; font-family: sans-serif; height: fit-content; line-height: 1;">SOC ORCHESTRATOR</span>
+      </div>
+      <div class="ng-subtitle">Enterprise Digital Twin, EDR/SIEM alert orchestration, AI-assisted response, human approval, and MCP-controlled execution.</div>
     </div>
     """,
     unsafe_allow_html=True,

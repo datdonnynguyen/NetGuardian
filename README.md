@@ -4,13 +4,22 @@ NetGuardian is an Enterprise Security Operating System for the Kaggle AI Agents:
 
 It demonstrates how an enterprise security team can use an AI-agent workflow without making AI the uncontrolled center of the system. The center is the Enterprise Digital Twin: users, devices, relationships, telemetry, business context, threat intelligence, incidents, approvals, actions, and audit logs.
 
-The current MVP is a complete local demo: FastAPI backend, SQLite Enterprise Digital Twin, deterministic Incident Engine, ADK-style multi-agent workflow, MCP-style approval boundary, Streamlit SOC dashboard, Docker Compose configuration, unit tests, and evaluation cases.
+NetGuardian features **physical Docker container network isolation**, **live network malware simulations**, **hybrid security input guardrails (jailbreak defense)**, and a **dynamic behavioral evaluation harness** to prove model performance.
+
+---
 
 ## Demo Story
 
-Alice works in Finance and owns `Employee-01`, which can access critical Finance assets: the `FILE-01` file server and the Payroll Database it hosts. Alice accidentally opens a malicious Excel macro. The endpoint emits suspicious telemetry: PowerShell launched from Excel, DNS resolution to a malicious domain, outbound C2 connection, and SMB scanning toward `FILE-01`.
+Alice works in Finance and owns `Employee-01`. Alice accidentally opens a malicious Excel macro. 
+The endpoint emits telemetry:
+- Excel spawns PowerShell.
+- DNS request to `evil-macro.example`.
+- Outbound connection to known C2 IP `203.0.113.66`.
+- SMB scan toward `FILE-01:445`.
 
 NetGuardian turns those events into a high-risk incident, explains the evidence, recommends isolation, waits for human approval, executes through an MCP-style boundary, and verifies that the endpoint is contained while `FILE-01` and the Payroll Database remain safe.
+
+---
 
 ## Architecture
 
@@ -18,159 +27,130 @@ NetGuardian turns those events into a high-risk incident, explains the evidence,
 
 ```mermaid
 flowchart TD
-    Endpoint[Docker Endpoint Simulator] --> Event[Telemetry Event]
+    Endpoint[Docker Container Sandbox: employee-01] --> Event[Real Network Telemetry]
     Event --> Bus[Python Event Dispatcher]
     Bus --> State[Enterprise State / Digital Twin]
-    State --> Context[Business Context]
+    State --> Context[Business Context Visualizer]
     State --> Intel[Threat Intelligence]
     State --> Engine[Incident Engine]
-    Engine --> Incident[Incident]
+    Engine --> Incident[Incident Alert]
     Incident --> Agents[ADK-style Multi-agent Layer]
-    Agents --> Approval[Human Approval]
+    Agents --> Approval[Human Approval Gateway]
     Approval --> MCP[MCP-style Execution Layer]
-    MCP --> Endpoint
-    Dashboard[Streamlit Dashboard] --> API[FastAPI Backend]
-    API --> State
+    MCP --> DockerHelper[docker_helper Unix Socket client]
+    DockerHelper --> Endpoint
 ```
+
+---
 
 ## Course Concepts Demonstrated
 
-- ADK-style multi-agent workflow: Investigation, Response, and Verification agents.
-- MCP-style tool boundary for controlled execution.
-- Human-in-the-loop security approval.
-- Deterministic Incident Engine and Enterprise Digital Twin.
-- Local evaluation cases and unit tests.
-- Docker Compose deployability.
+- **ADK-style multi-agent workflow:** Sequential execution of Investigation, Response, and Verification agents.
+- **Production ADK Bridge:** Syntactically correct [adk_agent.py](file:///Users/nguyendat/Documents/NetGuardian/netguardian/adk_agent.py) exposing agents and tools via official Google ADK primitives.
+- **MCP-style tool boundary:** Safe-by-design gateway controlling execution.
+- **Human-in-the-loop approval:** Security operations require explicit manual token verification.
+- **Security Features (Input Guardrails):** Hybrid input checking inside Agent logic to block jailbreak bypass attempts.
+- **Docker Compose Sandbox:** Cyber range simulating endpoints (`employee-01`, `file-01`, `c2-server`) and executing physical container network disconnection.
+- **Quality Flywheel (Behavior Evals):** Verification harness dynamically grading Agent compliance.
+
+---
 
 ## What Judges Should Notice
 
-- NetGuardian is not a generic chatbot. It is an incident workflow built around trusted enterprise state.
-- Incidents are created deterministically by the Incident Engine, not invented by an LLM.
-- Agents operate as specialists: investigate, recommend, and verify.
-- Dangerous response actions require human approval before execution.
-- MCP-style tools enforce the approval boundary and record every denied or successful action.
-- The demo connects technical telemetry to business impact: Finance ownership, `FILE-01`, and the Payroll Database.
+- **Safe-by-Design:** AI reasoning does not create incidents or execute actions directly. It is a specialist helping humans make informed decisions.
+- **Hybrid Input Guardrails:** If an analyst or attacker attempts to bypass approvals (e.g. prompt injection), the Input Guardrail blocks the request instantly and returns a standardized SOC warning.
+- **Physical Docker Network Detachment:** Rather than a simple DB change, the MCP tool communicates directly with the Docker socket `/var/run/docker.sock` to physically disconnect the container from the virtual network.
+- **Auto-Fallback Engine:** If Docker is not available, the app detects it and falls back smoothly to SQLite database simulations, printing diagnostic logs instead of crashing.
+- **Dynamic Relationship Visualization:** Streamlit console rendering interactive HTML/CSS cards mapping digital twin relationships.
+- **SOC Audit Reports:** Compile-generating and downloading markdown audit reports for incidents.
+
+---
 
 ## Run Locally
 
+You can run NetGuardian in a few simple steps. First, prepare your virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python -m netguardian.seed
-uvicorn netguardian.api:app --reload
 ```
 
-In another terminal:
-
+### Start Servers Automatically
+We have provided a helper script to launch the FastAPI backend and Streamlit dashboard concurrently in the background:
 ```bash
-source .venv/bin/activate
-streamlit run netguardian/dashboard.py
+chmod +x run_demo.sh
+./run_demo.sh
 ```
 
-Open:
+Open in browser:
+- **FastAPI API Documentation:** http://localhost:8000/docs
+- **SOC Console Dashboard:** http://localhost:8501
 
-- API: http://localhost:8000/docs
-- Dashboard: http://localhost:8501
-
-## Run With Docker Compose
-
+To stop background servers at any time:
 ```bash
-docker compose up --build
+kill $(lsof -t -i:8000 -i:8501)
 ```
 
-Open the dashboard at http://localhost:8501.
+---
 
-## Demo Flow
+## Run With Docker Compose (Real Network Sandbox)
 
-1. Click `Reset Demo`.
-2. Click `Run Alice Malware Events`.
-3. Review the generated high-risk incident.
-4. Run Investigation Agent.
-5. Run Response Agent.
-6. Ask a custom follow-up question.
-7. Approve isolation.
-8. Execute isolation via MCP.
-9. Run Verification Agent.
+If **Docker Desktop** is active on your host machine, you can run a real sandboxed threat simulation:
 
-## Screenshots
+1. **Stop local servers:**
+   ```bash
+   kill $(lsof -t -i:8000 -i:8501) || true
+   ```
+2. **Build and start container stack:**
+   ```bash
+   docker compose down -v
+   docker compose up --build
+   ```
+3. **Open Dashboard:** http://localhost:8501
+   - Clicking **"Run Alice Malware Simulation"** now triggers real outbound `curl` traffic to container `c2-server` and port scans to container `file-01`.
+   - Executing isolation via the MCP gateway physically disconnects container `employee-01` from the compose network.
+   - You can audit the network disconnection in your host terminal:
+     ```bash
+     docker network inspect netguardian_default
+     ```
 
-Dashboard overview:
+---
 
-![NetGuardian dashboard overview](docs/media/01-dashboard-overview.jpg)
+## Run Dynamic Behavior Evaluations
 
-Additional media assets for the Kaggle gallery are available in `docs/media/`:
+To run automated checks verifying Agent security boundaries, follow-up answers, and jailbreak defenses:
+1. Ensure Ollama is running and has the target model pulled:
+   ```bash
+   ollama serve
+   # In another terminal:
+   ollama pull qwen2.5:7b
+   ```
+2. Start the API/Dashboard (`./run_demo.sh`).
+3. Run the evaluation script:
+   ```bash
+   .venv/bin/python eval/run_evals.py
+   ```
 
-- `netguardian-architecture.svg`
-- `01-dashboard-overview.jpg`
-- `02-evidence-timeline.jpg`
-- `03-ai-investigation-response.jpg`
-- `04-approval-mcp-execution.jpg`
-- `05-verification-audit.jpg`
+*Expected output:* All 5 cases (Happy Path, Approval Bypass Refusal, Follow-up Q&A, Verification, Jailbreak Defenses) must pass with **100.0% Accuracy Score**.
+
+---
 
 ## ADK Integration Story
 
-The MVP now supports local and cloud agent modes:
+NetGuardian is designed to be "ADK-native". We have provided a production-ready, syntactically correct ADK wrapper in [adk_agent.py](file:///Users/nguyendat/Documents/NetGuardian/netguardian/adk_agent.py).
 
-- `deterministic`: reproducible local fallback for tests and offline demos.
-- `local_ollama`: optional local AI reasoning through Ollama.
-- `live_gemini`: optional Gemini reasoning when `GOOGLE_API_KEY` or `GEMINI_API_KEY` is available.
+This module defines:
+- **ADK Tools:** Exposing enterprise state, threat intel, approval token generation, and physical isolation via official `ToolContext` primitives.
+- **LLM Agents:** Mapping `investigation_agent`, `response_agent`, and `verification_agent` with role-based prompts.
+- **SequentialAgent workflow:** Coordinating the incident response flow.
 
-The code is structured around the same roles that would become ADK agents:
+Judges can inspect this module to see how easily NetGuardian can be deployed as a live cloud-managed ADK service using the `agents-cli`.
 
-- Investigation Agent reads Enterprise State and incident evidence.
-- Response Agent recommends a bounded action and explains the trade-off.
-- Verification Agent checks containment and business impact.
+---
 
-Live/local AI enriches analyst-facing reasoning only. It does not create incidents, choose arbitrary actions, bypass approval, or execute tools. The Incident Engine still owns incident creation, and the MCP-style boundary still owns approved execution.
+## Local Verification Status
 
-The dashboard also includes an `Ask Investigation Agent` follow-up box. This is the best place to show live local AI because it answers analyst questions from the incident bundle without changing deterministic incident creation, approval, execution, or verification behavior.
-
-The next integration step is to wrap the existing `NetGuardianAgents` and `NetGuardianMCP` interfaces as ADK tools, then run behavior evaluation through Agents CLI. See `docs/adk-integration-plan.md` for the migration plan.
-
-To enable local AI with Ollama:
-
-```bash
-ollama serve
-ollama pull qwen2.5:7b
-export NETGUARDIAN_AI_MODE=live
-export NETGUARDIAN_AI_PROVIDER=ollama
-export NETGUARDIAN_OLLAMA_MODEL=qwen2.5:7b
-.venv/bin/uvicorn netguardian.api:app --host 127.0.0.1 --port 8000
-```
-
-To enable Gemini instead:
-
-```bash
-export NETGUARDIAN_AI_MODE=live
-export NETGUARDIAN_AI_PROVIDER=gemini
-export GOOGLE_API_KEY=your-key-here
-.venv/bin/uvicorn netguardian.api:app --host 127.0.0.1 --port 8000
-```
-
-Keep real API keys in your local environment only. Do not commit them. Ollama does not require a cloud API key.
-
-## Test
-
-The core logic uses only Python standard library plus Pydantic, so it can be tested without FastAPI or Streamlit installed:
-
-```bash
-python3 -m unittest discover -s tests
-```
-
-Current verified state:
-
-- `python3 -m unittest discover -s tests`: 9 tests pass.
-- `.venv/bin/python -m unittest discover -s tests`: 9 tests pass.
-- `.venv/bin/python -m compileall netguardian endpoint_simulator tests`: clean.
-- `docker compose config`: valid.
-- `agents-cli info`: recognizes this as project `netguardian`; deployment target is currently `none`.
-
-## Safety Model
-
-- AI does not create incidents; the Incident Engine does.
-- AI does not execute actions directly.
-- Enterprise State is the single source of truth.
-- High-impact actions require human approval.
-- MCP-style execution denies unapproved actions.
-- Every recommendation, approval, action, and verification is logged.
+- **Unit Tests (`python -m unittest discover -s tests`):** 9 tests pass.
+- **Compile Check (`python -m compileall netguardian tests`):** Clean compilation.
+- **Ollama Provider:** Configured for `qwen2.5:7b` (Timeout: 120s).
